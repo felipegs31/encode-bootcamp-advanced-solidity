@@ -7,9 +7,10 @@ describe("ArraysLessonTwo", function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.
+  const initialArray = Array.from(Array(12).keys())
+
   async function deployArraysLessonTwoFixture() {
    
-    const initialArray = Array.from(Array(10).keys())
 
     const ArraysLessonTwo = await ethers.getContractFactory("ArraysLessonTwo");
     const arraysLessonTwo = await ArraysLessonTwo.deploy(initialArray);
@@ -26,7 +27,7 @@ describe("ArraysLessonTwo", function () {
       
       const bytes32Length = await ethers.provider.getStorageAt(arraysLessonTwo.address, 0)
       const length = parseInt(bytes32Length, 16)
-      expect(length).to.equal(10);
+      expect(length).to.equal(initialArray.length);
     });
 
   });
@@ -35,7 +36,10 @@ describe("ArraysLessonTwo", function () {
     it("Should remove items from array", async function () {
       const { arraysLessonTwo } = await loadFixture(deployArraysLessonTwoFixture);
 
-      expect(await arraysLessonTwo.deleteItemUnordered(5))
+      const trans =  await arraysLessonTwo.deleteItemUnordered(5)
+      const receipt = await trans.wait()
+      const gasCostForTxn = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+      console.log('deleteItemUnordered gasCostForTxn:', gasCostForTxn)
 
       let finalArray = []
       for(let i = 0; i < 9; i++) {
@@ -48,7 +52,7 @@ describe("ArraysLessonTwo", function () {
       
       let bytes32Length = await ethers.provider.getStorageAt(arraysLessonTwo.address, 0)
       let length = parseInt(bytes32Length, 16)
-      expect(length).to.equal(9);
+      expect(length).to.equal(11);
 
       expect(await arraysLessonTwo.deleteItemUnordered(3))
 
@@ -63,7 +67,7 @@ describe("ArraysLessonTwo", function () {
 
       bytes32Length = await ethers.provider.getStorageAt(arraysLessonTwo.address, 0)
       length = parseInt(bytes32Length, 16)
-       expect(length).to.equal(8);
+       expect(length).to.equal(10);
 
     });
 
@@ -73,7 +77,11 @@ describe("ArraysLessonTwo", function () {
     it("Should remove items from array", async function () {
       const { arraysLessonTwo } = await loadFixture(deployArraysLessonTwoFixture);
 
-      expect(await arraysLessonTwo.deleteItemOrdered(5))
+      const trans =  await arraysLessonTwo.deleteItemOrdered(5)
+      const receipt = await trans.wait()
+      const gasCostForTxn = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+      console.log('deleteItemOrdered gasCostForTxn:', gasCostForTxn)
+
 
       for(let i = 0; i < 9; i++) {
         let j = i < 5 ? i : i+1
@@ -82,7 +90,7 @@ describe("ArraysLessonTwo", function () {
       
       let bytes32Length = await ethers.provider.getStorageAt(arraysLessonTwo.address, 0)
       let length = parseInt(bytes32Length, 16)
-      expect(length).to.equal(9);
+      expect(length).to.equal(11);
 
       // delete position 3
       expect(await arraysLessonTwo.deleteItemOrdered(3))
@@ -95,7 +103,7 @@ describe("ArraysLessonTwo", function () {
       
       bytes32Length = await ethers.provider.getStorageAt(arraysLessonTwo.address, 0)
       length = parseInt(bytes32Length, 16)
-      expect(length).to.equal(8);
+      expect(length).to.equal(10);
 
     });
 
